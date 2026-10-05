@@ -38,7 +38,7 @@
         var map = {};
         rows.forEach(function (row) { map[row.key] = row.value || {}; });
         var m = map.maintenance || {};
-        if (m.enabled && (m.sites || []).indexOf(host) !== -1) return showMaintenance();
+        if (m.enabled && (m.sites || []).indexOf(host) !== -1) return showMaintenance(m.sites || []);
         var b = map.banner || {};
         if (b.enabled && b.text) showBanner(b);
       })
@@ -90,7 +90,13 @@
     document.body.insertBefore(bar, document.body.firstChild);
   }
 
-  function showMaintenance() {
+  // Points visitors to one of your sites that's still up (portfolio, then blog, then labs), or LinkedIn if all are down.
+  function fallback(down) {
+    var options = [["mmohamud.me", "https://mmohamud.me"], ["blog.mmohamud.me", "https://blog.mmohamud.me"], ["lab.mmohamud.me", "https://lab.mmohamud.me"]];
+    for (var i = 0; i < options.length; i++) if (options[i][0] !== host && down.indexOf(options[i][0]) === -1) return options[i];
+    return ["LinkedIn", "https://www.linkedin.com/in/mohamed-2-mohamud"];
+  }
+  function showMaintenance(down) {
     injectStyles();
     var wrap = document.createElement("div");
     wrap.className = "mm-maint";
@@ -99,10 +105,11 @@
     var h = document.createElement("h1");
     h.textContent = "Back shortly";
     var p = document.createElement("p");
-    p.textContent = "This site is getting some updates. In the meantime, visit ";
+    var to = fallback(down || []);
+    p.textContent = to[0] === "LinkedIn" ? "This site is getting some updates. In the meantime, find me on " : "This site is getting some updates. In the meantime, visit ";
     var a = document.createElement("a");
-    a.href = "https://mmohamud.me";
-    a.textContent = "mmohamud.me";
+    a.href = to[1];
+    a.textContent = to[0];
     p.appendChild(a);
     inner.appendChild(h);
     inner.appendChild(p);
