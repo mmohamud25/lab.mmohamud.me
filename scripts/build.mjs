@@ -15,11 +15,10 @@ const SUPABASE_URL = "https://lurrqcyaybpgidzjfdvh.supabase.co";
 const SITE_URL = "https://lab.mmohamud.me";
 const SITE_NAME = "Mohamud's Labs";
 const HEADLINE = "Practical labs for detection, hardening and incident response.";
-const INTRO = "Each lab documents a real exercise end to end: the scenario, the environment, every command, the evidence, and what it taught me. Aligned to Security+ and CySA+.";
+const INTRO = "Each lab documents a real exercise end to end: the scenario, the environment, every command, the evidence, and what it taught me.";
 const AUTHOR = { name: "Mohamud", line: "Technology and cybersecurity professional, Columbus, Ohio" };
 const LINKS = { home: "https://mmohamud.me", blog: "https://blog.mmohamud.me", linkedin: "https://www.linkedin.com/in/mohamed-2-mohamud" };
 const DOMAINS = ["Threat detection", "System hardening", "Network analysis", "Vulnerability management", "Incident response"];
-const CERTS = ["Security+", "CySA+"];
 const LEVELS = { beginner: { n: 1, label: "Beginner" }, intermediate: { n: 2, label: "Intermediate" }, advanced: { n: 3, label: "Advanced" } };
 const CODE_LABELS = { bash: "bash", sh: "shell", shell: "shell", zsh: "zsh", powershell: "PowerShell", ps1: "PowerShell", spl: "SPL · Splunk search",
   kql: "KQL", sql: "SQL", python: "Python", py: "Python", yaml: "YAML", yml: "YAML", json: "JSON", ini: "config", conf: "config", text: "text", cisco: "Cisco IOS" };
@@ -173,6 +172,10 @@ ${body}
 // ---------- Home: the catalog ----------
 function homePage(labs) {
   const domains = DOMAINS.filter((d) => labs.some((l) => l.domain === d));
+  // Only the certifications your labs actually use, most common first.
+  const certCount = new Map();
+  for (const l of labs) for (const c of l.certs || []) certCount.set(c, (certCount.get(c) || 0) + 1);
+  const certs = [...certCount.keys()].sort((a, b) => certCount.get(b) - certCount.get(a) || a.localeCompare(b));
   const check = (group, value, label) => `<label class="fcheck"><input type="checkbox" data-group="${group}" value="${esc(value)}"> ${esc(label)}</label>`;
   const row = (l) => `
     <li data-cert="${esc((l.certs || []).join("|"))}" data-level="${esc(l.difficulty)}" data-domain="${esc(l.domain)}" data-text="${esc([l.code, l.title, l.summary, l.domain, ...(l.tools || []), ...(l.attack || []), ...(l.skills || [])].join(" ").toLowerCase())}">
@@ -190,7 +193,7 @@ function homePage(labs) {
 <div class="catalog">
   <aside class="filters" aria-label="Filter labs">
     <label class="fsearch">${icon.search}<span class="sr-only">Search labs</span><input type="search" id="lab-search" placeholder="Search labs, tools…" autocomplete="off"></label>
-    <fieldset><legend>Certification</legend>${CERTS.map((c) => check("cert", c, c)).join("")}</fieldset>
+    ${certs.length ? `<fieldset><legend>Certification</legend>${certs.map((c) => check("cert", c, c)).join("")}</fieldset>` : ""}
     <fieldset><legend>Difficulty</legend>${Object.entries(LEVELS).map(([k, v]) => check("level", k, v.label)).join("")}</fieldset>
     ${domains.length > 1 ? `<fieldset><legend>Domain</legend>${domains.map((d) => check("domain", d, d)).join("")}</fieldset>` : ""}
   </aside>
@@ -212,7 +215,7 @@ function homePage(labs) {
     <h1>${esc(HEADLINE)}</h1>
     <p class="lede">${esc(INTRO)}</p>
     <ul class="features">
-      <li>${icon.check}Mapped to exam objectives</li>
+      <li>${icon.check}Run in isolated lab environments</li>
       <li>${icon.shield}MITRE ATT&amp;CK techniques</li>
       <li>${icon.download}Downloadable files, SHA-256 verified</li>
     </ul>
