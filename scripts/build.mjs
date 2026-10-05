@@ -160,7 +160,7 @@ ${body}
 <footer class="site-foot">
   <div class="foot-inner">
     <span class="foot-author"><img src="/assets/mohamud.jpg" alt="" width="40" height="40"><span><strong>${esc(AUTHOR.name)}</strong><span>${esc(AUTHOR.line)}</span></span></span>
-    <span class="foot-links"><a href="${LINKS.home}">mmohamud.me</a><a href="${LINKS.blog}">Blog</a><a href="${LINKS.linkedin}">LinkedIn</a><a href="${LINKS.blog}/privacy/">Privacy</a></span>
+    <span class="foot-links"><a href="${LINKS.home}">Portfolio</a><a href="${LINKS.blog}">Blog</a><a href="${LINKS.linkedin}">LinkedIn</a><a href="${LINKS.blog}/privacy/">Privacy</a></span>
   </div>
 </footer>
 <script defer src="/assets/lab.js?v=${BUILD_ID}"></script>
@@ -309,7 +309,11 @@ for (const [i, l] of labs.entries()) {
   await write(`labs/${l.slug}/index.html`, labPage(l, { next: labs[i - 1], prev: labs[i + 1] }));
 }
 await write("404.html", notFoundPage());
-await write("labs.json", JSON.stringify(labs.map((l) => ({ code: l.code, title: l.title, summary: l.summary, url: SITE_URL + labUrl(l), certs: l.certs, published_at: l.published_at }))));
+// Used by the "Recent labs" section on mmohamud.me.
+await write("labs.json", JSON.stringify(labs.map((l) => ({
+  code: l.code, title: l.title, summary: l.summary, url: SITE_URL + labUrl(l), certs: l.certs,
+  difficulty: level(l).label, duration: duration(l.duration_min).replace("About ", ""), published_at: l.published_at,
+}))));
 await write("sitemap.xml", `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 <url><loc>${SITE_URL}/</loc></url>
