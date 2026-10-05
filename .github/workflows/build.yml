@@ -1,0 +1,46 @@
+# Builds lab.mmohamud.me from published labs in Supabase and deploys to GitHub Pages.
+# Runs when: you push, the admin publishes a lab (repository_dispatch), once a day as a safety net, or manually.
+name: Build and deploy labs
+on:
+  push:
+    branches: [main]
+  repository_dispatch:
+    types: [publish]
+  schedule:
+    - cron: "17 6 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04   # pinned: ubuntu-latest moves to 26.04 on Oct 19, 2026
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: npm install --no-audit --no-fund
+      - run: node scripts/build.mjs
+        env:
+          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-24.04   # pinned: ubuntu-latest moves to 26.04 on Oct 19, 2026
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
