@@ -241,3 +241,17 @@ a{color:var(--link)}a:hover{color:var(--link-hover)}
 html.theme-animating *,html.theme-animating *::before,html.theme-animating *::after{transition:background-color .35s ease,border-color .35s ease,color .35s ease !important}
 @media (prefers-reduced-motion:reduce){html.theme-animating *{transition:none !important}}
 @media print{.theme-fab{display:none}}
+
+/* Comfortable touch targets on phones and tablets */
+@media (max-width:900px){
+  .brand{min-height:44px}
+  .foot-links{gap:0 6px}
+  .foot-links a{display:inline-flex;align-items:center;min-height:44px;padding:0 8px}
+  .copy,.term .copy{height:44px;min-width:44px;font-size:13px}
+  .eyebrow{font-size:13px}
+  .fcheck{min-height:44px;display:flex;align-items:center;gap:10px}
+  .fcheck input[type=checkbox]{width:22px;height:22px}
+  #lab-search{min-height:44px}
+  a.mono[href*="attack.mitre.org"]{display:inline-block;padding:10px 0}
+  .crumbs a,.breadcrumb a{display:inline-block;padding:11px 0}
+}
